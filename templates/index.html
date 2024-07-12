@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shape Drawer</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Draw Shapes</h1>
+    <form id="shapeForm">
+        <label for="shapeData">Enter Shape Data (JSON):</label>
+        <textarea id="shapeData" rows="10" cols="50">[
+            {"view": "front", "coords": [[1, 1], [1, 4], [4, 4], [4, 1], [1, 1]]},
+            {"view": "top", "coords": [[1, 1], [1, 2.5], [2.5, 2.5], [2.5, 1], [1, 1]]},
+            {"view": "aux", "coords": [[2, 2], [2, 3], [3, 3], [3, 2], [2, 2]]}
+        ]</textarea>
+        <button type="submit">Draw</button>
+    </form>
+    <br>
+    <img id="outputImage" src="" alt="Output Image" style="display: none;">
+    <script>
+    $(document).ready(function() {
+        $('#shapeForm').on('submit', function(event) {
+            event.preventDefault();
+            const shapeData = $('#shapeData').val();
+            try {
+                const shapes = JSON.parse(shapeData);
+                $.ajax({
+                    url: '/draw',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ shapes: shapes }),
+                    success: function(response) {
+                        $('#outputImage').attr('src', 'data:image/png;base64,' + response.image).show();
+                    },
+                    error: function(error) {
+                        alert('Error drawing shapes: ' + error.responseText);
+                    }
+                });
+            } catch (e) {
+                alert('Invalid JSON format');
+            }
+        });
+    });
+    </script>
+</body>
+</html>
